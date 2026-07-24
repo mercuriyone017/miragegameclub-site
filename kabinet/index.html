@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shaxsiy kabinet — Mirage Game Club</title>
+<meta name="description" content="Mirage Game Club shaxsiy kabineti: balansingizni, bronlaringizni va saqlangan kartangizni boshqaring.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://miragegameclub.uz/kabinet/">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');
+
+  :root {
+    --bg: #060608; --dark: #0d0c10;
+    --surface: rgba(255,255,255,0.035); --surface-hi: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.09); --border-hi: rgba(255,187,90,0.35);
+    --amber: #ffb020; --amber-2: #ff8a3d; --amber-glow: rgba(255,159,45,0.45);
+    --teal: #2fe6c9; --free: #37e29a; --busy: #ff5c72;
+    --white: #f4f2ff; --muted: rgba(244,242,255,0.6); --muted-2: rgba(244,242,255,0.4);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--white); font-family: 'Inter', sans-serif; min-height: 100vh; position: relative; overflow-x: hidden; }
+  h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  .mesh { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .mesh::before { content: ''; position: absolute; width: 55vw; height: 55vw; top: -18vw; left: -10vw; border-radius: 50%; filter: blur(110px); background: radial-gradient(circle, rgba(255,159,45,0.2) 0%, transparent 70%); }
+  .mesh::after { content: ''; position: absolute; width: 50vw; height: 50vw; bottom: -15vw; right: -10vw; border-radius: 50%; filter: blur(110px); background: radial-gradient(circle, rgba(139,107,255,0.16) 0%, transparent 70%); }
+
+  nav { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: 18px 48px; border-bottom: 1px solid var(--border); backdrop-filter: blur(20px); background: rgba(6,6,8,0.6); }
+  .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--white); text-decoration: none; }
+  .nav-logo img { width: 30px; height: 30px; border-radius: 8px; }
+  .nav-logo span { color: var(--amber); }
+  .nav-home { color: var(--muted); text-decoration: none; font-size: 0.85rem; }
+  .nav-home:hover { color: var(--white); }
+
+  main { position: relative; z-index: 2; max-width: 720px; margin: 0 auto; padding: 60px 24px 100px; }
+  .glass { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; backdrop-filter: blur(18px); padding: 32px; margin-bottom: 20px; }
+  .eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--amber); margin-bottom: 10px; }
+  h1.title { font-size: 1.9rem; margin-bottom: 6px; }
+  p.lead { color: var(--muted); font-size: 0.92rem; margin-bottom: 24px; }
+
+  .form-group { margin-bottom: 15px; }
+  .form-group label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+  .form-group input, .form-group select {
+    width: 100%; padding: 12px 15px; background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    border-radius: 10px; color: var(--white); font-size: 0.92rem; font-family: 'Inter', sans-serif; outline: none;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--border-hi); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+    background: linear-gradient(135deg, var(--amber), var(--amber-2)); color: #16110a; padding: 14px;
+    border-radius: 12px; font-size: 0.95rem; font-weight: 700; border: none; cursor: pointer; transition: all 0.2s;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn:disabled { opacity: 0.55; transform: none; cursor: default; }
+  .btn-ghost { background: var(--surface); color: var(--white); border: 1px solid var(--border); }
+  .btn-sm { width: auto; padding: 9px 18px; font-size: 0.85rem; }
+  .error-box { background: rgba(255,92,114,0.1); border: 1px solid rgba(255,92,114,0.35); color: #ffb3bd; padding: 12px 16px; border-radius: 10px; font-size: 0.85rem; margin-bottom: 16px; display: none; }
+  .error-box.show { display: block; }
+
+  .balance-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 22px; flex-wrap: wrap; gap: 16px; }
+  .balance-num { font-family: 'JetBrains Mono', monospace; font-size: 2.1rem; font-weight: 700; color: var(--amber); }
+  .balance-label { font-size: 0.76rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .stat-mini { text-align: right; }
+  .stat-mini .num { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 1.1rem; }
+
+  .tabs { display: flex; gap: 6px; margin-bottom: 20px; background: var(--surface); border-radius: 12px; padding: 4px; }
+  .tab-btn { flex: 1; padding: 10px; border-radius: 9px; border: none; background: none; color: var(--muted); font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+  .tab-btn.active { background: var(--amber); color: #16110a; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 0.87rem; }
+  .list-item:last-child { border-bottom: none; }
+  .list-item .meta { color: var(--muted); font-size: 0.78rem; }
+  .pill { font-size: 0.68rem; padding: 3px 10px; border-radius: 100px; font-weight: 700; text-transform: uppercase; }
+  .pill.confirmed, .pill.paid { background: rgba(55,226,154,0.15); color: var(--free); }
+  .pill.pending { background: rgba(255,176,32,0.15); color: var(--amber); }
+  .pill.cancelled { background: rgba(255,92,114,0.15); color: var(--busy); }
+
+  .amount-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
+  .amount-opt { padding: 14px 8px; text-align: center; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-family: 'JetBrains Mono', monospace; font-weight: 700; transition: all 0.2s; }
+  .amount-opt.active { border-color: var(--border-hi); background: rgba(255,176,32,0.1); color: var(--amber); }
+
+  .card-box { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 16px; }
+  .empty-note { color: var(--muted); font-size: 0.86rem; text-align: center; padding: 20px 0; }
+
+  #loginView, #dashboardView { display: none; }
+  #loginView.show, #dashboardView.show { display: block; }
+
+  @media (max-width: 600px) {
+    nav { padding: 14px 20px; }
+    main { padding: 40px 16px 80px; }
+    .glass { padding: 22px; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="mesh"></div>
+
+<nav>
+  <a href="/" class="nav-logo"><img src="/assets/logo-96.png" alt="Mirage Game Club">MIRAGE<span>.</span>CLUB</a>
+  <a href="/" class="nav-home">← Bosh sahifa</a>
+</nav>
+
+<main>
+  <!-- LOGIN -->
+  <div id="loginView">
+    <div class="glass">
+      <div class="eyebrow">Shaxsiy kabinet</div>
+      <h1 class="title">Hisobingizga kiring</h1>
+      <p class="lead">Klub kompyuterida sessiya boshlash uchun ishlatadigan login va parolingiz bilan kiring.</p>
+      <div class="error-box" id="loginError"></div>
+      <div class="form-group">
+        <label>Login (hisob nomi)</label>
+        <input type="text" id="loginAccount" placeholder="Hisob nomingiz" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label>Parol</label>
+        <input type="password" id="loginPassword" placeholder="Parolingiz" autocomplete="current-password">
+      </div>
+      <button class="btn" id="loginBtn" onclick="doLogin()">Kirish</button>
+      <p style="margin-top:16px;font-size:0.82rem;color:var(--muted);text-align:center;">
+        Hisobingiz yo'qmi? <a href="https://t.me/mirageshahbot" target="_blank" style="color:var(--amber);text-decoration:none;">@mirageshahbot</a> orqali ro'yxatdan o'ting.
+      </p>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboardView">
+    <div class="glass">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <div>
+          <div class="eyebrow">Xush kelibsiz</div>
+          <h1 class="title" id="dashName" style="margin-bottom:0;">—</h1>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="doLogout()">Chiqish</button>
+      </div>
+    </div>
+
+    <div class="glass">
+      <div class="balance-row">
+        <div>
+          <div class="balance-label">Balans</div>
+          <div class="balance-num" id="balAmount">—</div>
+        </div>
+        <div class="stat-mini">
+          <div class="num" id="balBonus" style="color:var(--teal);">—</div>
+          <div class="balance-label">Bonus</div>
+        </div>
+        <div class="stat-mini">
+          <div class="num" id="balPlayed">—</div>
+          <div class="balance-label">O'ynalgan (daq)</div>
+        </div>
+      </div>
+      <div id="balOffers"></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('bookings', this)">Bronlar</button>
+      <button class="tab-btn" onclick="switchTab('topup', this)">Balans to'ldirish</button>
+      <button class="tab-btn" onclick="switchTab('card', this)">Kartam</button>
+    </div>
+
+    <!-- BOOKINGS -->
+    <div class="tab-panel active" id="panel-bookings">
+      <div class="glass">
+        <h3 style="font-size:1.05rem;margin-bottom:16px;">Yangi bron</h3>
+        <div class="error-box" id="bookError"></div>
+        <div class="form-row">
+          <div class="form-group"><label>PC raqami (001-024)</label><input type="text" id="bookPc" placeholder="Masalan: 003"></div>
+          <div class="form-group"><label>Odamlar soni</label><input type="number" id="bookPeople" value="1" min="1" max="24"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Sana</label><input type="date" id="bookDate"></div>
+          <div class="form-group"><label>Vaqt</label><input type="time" id="bookTime"></div>
+        </div>
+        <button class="btn" id="bookBtn" onclick="createBooking()">Bron qilish</button>
+      </div>
+      <div class="glass">
+        <h3 style="font-size:1.05rem;margin-bottom:12px;">So'nggi bronlarim</h3>
+        <div id="bookingsList"><p class="empty-note">Yuklanmoqda...</p></div>
+      </div>
+    </div>
+
+    <!-- TOPUP -->
+    <div class="tab-panel" id="panel-topup">
+      <div class="glass">
+        <h3 style="font-size:1.05rem;margin-bottom:16px;">Balans to'ldirish</h3>
+        <div class="amount-grid" id="amountGrid">
+          <div class="amount-opt" data-amount="50000">50 000</div>
+          <div class="amount-opt active" data-amount="100000">100 000</div>
+          <div class="amount-opt" data-amount="200000">200 000</div>
+        </div>
+        <button class="btn" id="topupBtn" onclick="startTopup()">💳 Payme orqali to'ldirish</button>
+      </div>
+      <div class="glass">
+        <h3 style="font-size:1.05rem;margin-bottom:12px;">To'lovlar tarixi</h3>
+        <div id="topupsList"><p class="empty-note">Yuklanmoqda...</p></div>
+      </div>
+    </div>
+
+    <!-- CARD -->
+    <div class="tab-panel" id="panel-card">
+      <div class="glass">
+        <h3 style="font-size:1.05rem;margin-bottom:16px;">Saqlangan karta</h3>
+        <div class="error-box" id="cardError"></div>
+        <div id="cardContent"><p class="empty-note">Yuklanmoqda...</p></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const API_BASE = 'https://app.miragegameclub.uz';
+const TOKEN_KEY = 'mirage_cabinet_token';
+
+function getToken() { return localStorage.getItem(TOKEN_KEY); }
+function setToken(t) { localStorage.setItem(TOKEN_KEY, t); }
+function clearToken() { localStorage.removeItem(TOKEN_KEY); }
+
+async function api(path, opts = {}) {
+  const headers = Object.assign({ 'Content-Type': 'application/json' }, opts.headers || {});
+  const token = getToken();
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  const res = await fetch(API_BASE + path, Object.assign({}, opts, { headers }));
+  let data = null;
+  try { data = await res.json(); } catch (e) {}
+  if (!res.ok) {
+    const err = new Error((data && data.detail) || ('Xatolik: ' + res.status));
+    err.status = res.status;
+    throw err;
+  }
+  return data;
+}
+
+function showView(view) {
+  document.getElementById('loginView').classList.toggle('show', view === 'login');
+  document.getElementById('dashboardView').classList.toggle('show', view === 'dashboard');
+}
+
+function showError(elId, msg) {
+  const el = document.getElementById(elId);
+  el.textContent = msg;
+  el.classList.add('show');
+}
+function hideError(elId) { document.getElementById(elId).classList.remove('show'); }
+
+async function doLogin() {
+  hideError('loginError');
+  const account = document.getElementById('loginAccount').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if (!account || !password) { showError('loginError', 'Login va parolni kiriting.'); return; }
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true; btn.textContent = 'Tekshirilmoqda...';
+  try {
+    const data = await api('/api/site/cabinet/login', { method: 'POST', body: JSON.stringify({ account, password }) });
+    setToken(data.token);
+    await loadDashboard();
+    showView('dashboard');
+  } catch (e) {
+    showError('loginError', e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Kirish';
+  }
+}
+
+function doLogout() {
+  clearToken();
+  showView('login');
+}
+
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+function fmt(n) { return Math.round(n).toLocaleString('uz-UZ'); }
+
+async function loadDashboard() {
+  const bal = await api('/api/balance');
+  document.getElementById('dashName').textContent = bal.name || bal.account;
+  document.getElementById('balAmount').textContent = fmt(bal.balance) + ' uzs';
+  document.getElementById('balBonus').textContent = fmt(bal.bonus) + ' uzs';
+  document.getElementById('balPlayed').textContent = fmt(bal.played_minutes || 0);
+  const offersEl = document.getElementById('balOffers');
+  if (bal.offers && bal.offers.length) {
+    offersEl.innerHTML = bal.offers.map(o =>
+      `<div class="list-item"><span>${o.product_name}</span><span class="meta">${Math.round(o.left_seconds/60)} daqiqa qoldi</span></div>`
+    ).join('');
+  } else {
+    offersEl.innerHTML = '';
+  }
+
+  loadBookings();
+  loadTopups();
+  loadCard();
+}
+
+async function loadBookings() {
+  const el = document.getElementById('bookingsList');
+  try {
+    const data = await api('/api/bookings');
+    if (!data.items || !data.items.length) { el.innerHTML = '<p class="empty-note">Hali bron mavjud emas.</p>'; return; }
+    el.innerHTML = data.items.map(b =>
+      `<div class="list-item"><span>PC ${b.pc_name} — ${b.book_date} ${b.book_time}</span><span class="pill ${b.status}">${b.status}</span></div>`
+    ).join('');
+  } catch (e) { el.innerHTML = `<p class="empty-note">${e.message}</p>`; }
+}
+
+async function createBooking() {
+  hideError('bookError');
+  const pcRaw = document.getElementById('bookPc').value.trim();
+  const people = parseInt(document.getElementById('bookPeople').value, 10) || 1;
+  const date = document.getElementById('bookDate').value;
+  const time = document.getElementById('bookTime').value;
+  if (!pcRaw || !date || !time) { showError('bookError', 'Barcha maydonlarni to\'ldiring.'); return; }
+  const btn = document.getElementById('bookBtn');
+  btn.disabled = true; btn.textContent = 'Yuborilmoqda...';
+  try {
+    const res = await api('/api/bookings', {
+      method: 'POST',
+      body: JSON.stringify({ pc_name: pcRaw, book_date: date, book_time: time, people_count: people }),
+    });
+    if (res.ok === false) {
+      showError('bookError', res.message || 'Balans yetarli emas.');
+    } else {
+      loadBookings();
+    }
+  } catch (e) {
+    showError('bookError', e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Bron qilish';
+  }
+}
+
+let selectedAmount = 100000;
+document.getElementById('amountGrid').addEventListener('click', (e) => {
+  const opt = e.target.closest('.amount-opt');
+  if (!opt) return;
+  document.querySelectorAll('.amount-opt').forEach(o => o.classList.remove('active'));
+  opt.classList.add('active');
+  selectedAmount = parseInt(opt.dataset.amount, 10);
+});
+
+async function startTopup() {
+  const btn = document.getElementById('topupBtn');
+  btn.disabled = true; btn.textContent = 'Tayyorlanmoqda...';
+  try {
+    const res = await api('/api/topup', { method: 'POST', body: JSON.stringify({ amount: selectedAmount }) });
+    if (res.payme_url) window.open(res.payme_url, '_blank');
+    loadTopups();
+  } catch (e) {
+    alert(e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = '💳 Payme orqali to\'ldirish';
+  }
+}
+
+async function loadTopups() {
+  const el = document.getElementById('topupsList');
+  try {
+    const data = await api('/api/topups');
+    if (!data.items || !data.items.length) { el.innerHTML = '<p class="empty-note">Hali to\'lov mavjud emas.</p>'; return; }
+    el.innerHTML = data.items.map(t =>
+      `<div class="list-item"><span>${fmt(t.amount)} uzs ${t.bonus_amount ? '(+' + fmt(t.bonus_amount) + ' bonus)' : ''}</span><span class="pill ${t.status}">${t.status}</span></div>`
+    ).join('');
+  } catch (e) { el.innerHTML = `<p class="empty-note">${e.message}</p>`; }
+}
+
+async function loadCard() {
+  const el = document.getElementById('cardContent');
+  try {
+    const data = await api('/api/cards');
+    if (data.card) {
+      el.innerHTML = `
+        <div class="card-box">
+          <span>💳 •••• ${(data.card.number || '').slice(-4)} · ${data.card.expire || ''}</span>
+          <button class="btn btn-ghost btn-sm" onclick="removeCard()">O'chirish</button>
+        </div>`;
+    } else {
+      el.innerHTML = `
+        <div class="form-group"><label>Karta raqami</label><input type="text" id="cardNumber" placeholder="8600 XXXX XXXX XXXX" maxlength="19"></div>
+        <div class="form-group"><label>Amal qilish muddati (YYMM)</label><input type="text" id="cardExpire" placeholder="2812" maxlength="4"></div>
+        <button class="btn" id="cardAddBtn" onclick="addCard()">Kartani biriktirish</button>`;
+    }
+  } catch (e) {
+    el.innerHTML = `<p class="empty-note">${e.message}</p>`;
+  }
+}
+
+async function addCard() {
+  hideError('cardError');
+  const number = document.getElementById('cardNumber').value.replace(/\s/g, '');
+  const expire = document.getElementById('cardExpire').value.trim();
+  if (!number || !expire) { showError('cardError', 'Karta raqami va muddatini kiriting.'); return; }
+  const btn = document.getElementById('cardAddBtn');
+  btn.disabled = true; btn.textContent = 'Yuborilmoqda...';
+  try {
+    const res = await api('/api/cards', { method: 'POST', body: JSON.stringify({ number, expire }) });
+    const code = prompt('Kartangizga bog\'langan raqamga SMS kod yuborildi (' + (res.phone || '') + '). Kodni kiriting:');
+    if (code) {
+      await api('/api/cards/verify', { method: 'POST', body: JSON.stringify({ code }) });
+    }
+    loadCard();
+  } catch (e) {
+    showError('cardError', e.message);
+  } finally {
+    btn.disabled = false; if (btn) btn.textContent = 'Kartani biriktirish';
+  }
+}
+
+async function removeCard() {
+  if (!confirm('Kartani o\'chirmoqchimisiz?')) return;
+  try {
+    await api('/api/cards', { method: 'DELETE' });
+    loadCard();
+  } catch (e) { alert(e.message); }
+}
+
+(function init() {
+  document.getElementById('bookDate').valueAsDate = new Date();
+  if (getToken()) {
+    loadDashboard().then(() => showView('dashboard')).catch(() => { clearToken(); showView('login'); });
+  } else {
+    showView('login');
+  }
+})();
+</script>
+</body>
+</html>
